@@ -85,11 +85,13 @@ bamDir <- system.file("extdata",package="parathyroidSE",mustWork=TRUE)
 fls <- list.files(bamDir, pattern="bam$",full=TRUE)
 bamlst <- BamFileList(fls)
 geneHitsPairs <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
-                                   singleEnd=FALSE, ignore.strand=TRUE)
+                                   singleEnd=FALSE, fragments=FALSE,
+                                   ignore.strand=TRUE)
 geneHitsSingletons <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
                                         param=ScanBamParam(flag=scanBamFlag(
                                         isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                        singleEnd=TRUE, ignore.strand=TRUE)
+                                        singleEnd=TRUE, fragments=FALSE,
+                                        ignore.strand=TRUE)
 parathyroidGenesSE <- geneHitsPairs
 assay(parathyroidGenesSE) <- assay(geneHitsPairs) + assay(geneHitsSingletons)
 @ 
@@ -154,14 +156,16 @@ exonicParts[101:103]
 We used the \Rfunction{countOverlaps} function as a counting mode, in order to count all overlaps.  Otherwise, paired-end reads and junction-spanning reads which hit more than one exonic part would not be counted.
 
 <<exonCounts>>=
-myco <- function(reads, features, ignore.strand) countOverlaps(
+myco <- function(features, reads, ignore.strand, inter.feature) countOverlaps(
                    features, reads, ignore.strand=ignore.strand)
 exonHitsPairs <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
-                                   singleEnd=FALSE, ignore.strand=TRUE)
+                                   singleEnd=FALSE, fragments=FALSE,
+                                   ignore.strand=TRUE)
 exonHitsSingletons <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
                                         param=ScanBamParam(flag=scanBamFlag(
                                         isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                        singleEnd=TRUE, ignore.strand=TRUE)
+                                        singleEnd=TRUE, fragments=FALSE,
+                                        ignore.strand=TRUE)
 parathyroidExonsSE <- exonHitsPairs
 assay(parathyroidExonsSE) <- assay(exonHitsPairs) + assay(exonHitsSingletons)
 @ 
