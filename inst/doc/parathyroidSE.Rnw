@@ -98,7 +98,7 @@ assay(parathyroidGenesSE) <- assay(geneHitsPairs) + assay(geneHitsSingletons)
 
 \section{Preparing exonic parts}
 
-For counting reads at the exon-level, we first prepared a \Rclass{GRanges} object which contains non-overlapping exonic parts. By comparing count levels across these exonic parts, we could infer cases of differential exon usage.  The resulting exonic parts are identical to those produced by the python script distributed with the \Rpackage{DEXSeq} package (though the aggregated gene names might be in a different order).  Note that some of the exonic parts have changed since the preparation of the \Rpackage{parathyroid} package due to the different Ensembl releases.  We first retreived the exon-by-transcript information to annotate exonic parts with transcript membership.
+For counting reads at the exon-level, we first prepared a \Rclass{GRanges} object which contains non-overlapping exonic parts. By comparing count levels across these exonic parts, we could infer cases of differential exon usage.  The resulting exonic parts are identical to those produced by the python script distributed with the \Rpackage{DEXSeq} package (though the aggregated gene names might be in a different order).  Note that some of the exonic parts have changed since the preparation of the \Rpackage{parathyroid} package due to the different Ensembl releases.  We first retrieved the exon-by-transcript information to annotate exonic parts with transcript membership.
 
 <<getExonsByTranscript, eval=FALSE>>=
 exonsByTranscript <- exonsBy(hse, by="tx", use.names=TRUE)
