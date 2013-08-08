@@ -9,5 +9,5 @@ Description: This package provides SummarizedExperiment objects of read counts i
 biocViews: ExperimentData, RNAseqData
 License: LGPL
 Depends: GenomicRanges, R (>= 2.10)
-Suggests: Rsamtools, GEOquery, SRAdb, GenomicFeatures
+Suggests: Rsamtools, GEOquery, SRAdb, GenomicFeatures, BiocStyle
 Packaged: 2013-02-06 14:52:30 UTC; love
