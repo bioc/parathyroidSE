@@ -1,39 +1,36 @@
 %\VignetteIndexEntry{parathyroidGenesSE}
+%\VignettePackage{parathyroidSE}
 \documentclass{article}
 
+<<style, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
 \usepackage{Sweave}
-\usepackage[a4paper]{geometry}
-\usepackage{hyperref,graphicx}
+\SweaveOpts{keep.source=TRUE,eps=FALSE,height=4.5,width=4} 
+
 \usepackage{cite}
-\usepackage{color}
-\usepackage{url}
 \usepackage{fancyvrb}
 \usepackage[utf8]{inputenc}
+
+\definecolor{darkgray}{gray}{0.2}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{xleftmargin=1em,formatcom={\color{darkgray}}}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1em,frame=leftline,framerule=.6pt,rulecolor=\color{darkgray},framesep=1em,formatcom={\color{darkgray}}}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
 \setlength{\parindent}{0em}
 \setlength{\parskip}{.5em}
 
-\SweaveOpts{keep.source=TRUE,eps=FALSE,height=4.5,width=4} 
-\newcommand{\Robject}[1]{\texttt{#1}}
-\newcommand{\Rpackage}[1]{\textit{#1}}
-\newcommand{\Rclass}[1]{\textit{#1}}
-\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}
-\newcommand{\fixme}[1]{{\textbf{Fixme:} \textit{\textcolor{blue}{#1}}}}
-
-\definecolor{darkgray}{gray}{0.2}
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,xleftmargin=1em,formatcom={\color{darkgray}}}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small,xleftmargin=1em,frame=leftline,framerule=.6pt,rulecolor=\color{darkgray},framesep=1em,formatcom={\color{darkgray}}}
-\fvset{listparameters={\setlength{\topsep}{0pt}}}
-\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
-
-
-\title{\textsf{\textbf{Creation of \Robject{parathyroidGenesSE}}}}
+\title{Creation of \Robject{parathyroidGenesSE} and \Robject{parathyroidExonsSE}}
 \author{Michael Love}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-This vignette describes the construction of the SummarizedExperiment \Robject{parathyroidGenesSE} in the \Rpackage{parathyroidSE} package.
+This vignette describes the construction of the SummarizedExperiment 
+\Robject{parathyroidGenesSE} and \Robject{parathyroidExonsSE}
+in the \Biocexptpkg{parathyroidSE} package.
 \end{abstract}
 
 \tableofcontents
@@ -44,159 +41,163 @@ options(digits=3, width=80, prompt=" ", continue=" ")
 
 \section{Dataset description}
 
-We downloaded the RNA-Seq data from the publication of Haglund et al. \cite{Haglund2012Evidence}.  The paired-end sequencing was performed on primary cultures from parathyroid tumors of 4 patients at 2 time points over 3 conditions (control, treatment with diarylpropionitrile (DPN) and treatment with 4-hydroxytamoxifen (OHT)).  DPN is a selective estrogen receptor $\beta$ 1 agonist and OHT is a selective estrogen receptor modulator.  One sample (patient 4, 24 hours, control) was omitted by the paper authors due to low quality.  
+We downloaded the RNA-Seq data from the publication of Haglund et al. 
+\cite{Haglund2012Evidence}.  
+The paired-end sequencing was performed on primary cultures from 
+parathyroid tumors of 4 patients at 2 time points over 3 conditions 
+(control, treatment with diarylpropionitrile (DPN) and treatment with 
+4-hydroxytamoxifen (OHT)).  DPN is a selective estrogen receptor $\beta$ 1 
+agonist and OHT is a selective estrogen receptor modulator.  
+One sample (patient 4, 24 hours, control) was omitted by the paper 
+authors due to low quality.  
 
 \section{Downloading the data}
 
-The raw sequencing data is publicly available from the NCBI Gene Expression Omnibus under accession number GSE37211\footnote{\url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE37211}}.  The read sequences in FASTQ format were extracted from the NCBI short read archive file (.sra files), using the sra toolkit\footnote{\url{http://www.ncbi.nlm.nih.gov/books/NBK56560/}}.
+The raw sequencing data is publicly available from the NCBI Gene Expression Omnibus
+under accession number 
+GSE37211\footnote{\url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE37211}}.  
+The read sequences in FASTQ format were extracted from the NCBI short read archive file 
+(.sra files), using the sra 
+toolkit\footnote{\url{http://www.ncbi.nlm.nih.gov/books/NBK56560/}}.
 
 \section{Aligning reads}
 
-The sequenced reads in the FASTQ files were aligned using TopHat version 2.0.4\footnote{\url{http://tophat.cbcb.umd.edu/}} with default parameters to the GRCh37 human reference genome using the Bowtie index available at the Illumina iGenomes page\footnote{\url{http://tophat.cbcb.umd.edu/igenomes.html}}.  The following code for the command line produces a directory for each run and indexes the BAM file (substituting the SRR number for \texttt{file}):
+The sequenced reads in the FASTQ files were aligned using TopHat version 
+2.0.4\footnote{\url{http://tophat.cbcb.umd.edu/}} with default parameters to the GRCh37 
+human reference genome using the Bowtie index available at the Illumina 
+iGenomes page\footnote{\url{http://tophat.cbcb.umd.edu/igenomes.html}}.  
+The following code for the command line produces a directory for each run and 
+then sorts resulting BAM files by QNAME, allowing us to read 
+in the paired-end reads in batches using the \Robject{yieldSize} 
+argument of \Rfunction{BamFileList}. 
 
 \begin{Verbatim}[frame=single]
-  tophat2 -o file_tophat_out -p 8 genome file_1.fastq file_2.fastq 
-  samtools index file_tophat_out/accepted_hits.bam 
+  tophat2 -o file_tophat_out genome file_1.fastq file_2.fastq 
+  samtools sort -n file_tophat_out/accepted_hits.bam _sorted 
 \end{Verbatim}
 
 \section{Counting reads in genes}
 
-The genes were downloaded using the \Rpackage{GenomicFeatures} package from Ensembl release 69 on 5 February 2013.  The \Rfunction{exonsBy} function produces a \Rclass{GRangesList} object of all exons grouped by gene.
+The genes were downloaded using the \Biocpkg{GenomicFeatures} package from Ensembl release 
+72 on July 30 2013.  The \Rfunction{exonsBy} function produces a \Rclass{GRangesList} 
+object of all exons grouped by gene.
 
 <<getExonsByGene, eval=FALSE>>=
 library(GenomicFeatures)
 hse <- makeTranscriptDbFromBiomart(biomart="ensembl",
                                    dataset="hsapiens_gene_ensembl")
-exonsByGene <- exonsBy(hse, by="gene") 
+exonsByGene <- exonsBy(hse, by="gene")
 @ 
 
-For the vignette, we load a subset of these genes:
+For demonstration purposes in the vignette, we load a subset of these genes:
 
 <<loadExonsByGene>>=
 library("parathyroidSE")
 data(exonsByGene)
-@ 
+@  
 
-For counting reads in genes, we used \Rfunction{summarizeOverlaps} from the \Rpackage{GenomicRanges} and \Rpackage{Rsamtools} packages.  The following code demonstrates counting reads from 3 reduced BAM files over a subset of the Ensembl genes.  The protocol is not strand specific, so we set \texttt{ignore.strand=TRUE}.  We counted ``singletons'' as well, reads with an unmapped mate, and added these counts to produce a total.
+The following code is used to generate a character vector of the location of the BAM files. 
+The first line specifying \Robject{bamDir} would typically be replaced 
+with the directory containing the BAM files.
 
-\fixme{Note: we have two versions of the counting code, first for Bioconductor version 2.12 and then for following Bioconductor releases.}
-
-<<countGenes>>=
-library(Rsamtools)
+<<locateFiles>>=
 bamDir <- system.file("extdata",package="parathyroidSE",mustWork=TRUE)
 fls <- list.files(bamDir, pattern="bam$",full=TRUE)
-bamlst <- BamFileList(fls)
-if (BiocInstaller:::biocVersion() == "2.12") {
-  geneHitsPairs <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
-                                     singleEnd=FALSE, ignore.strand=TRUE)
-  geneHitsSingletons <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
-                                          param=ScanBamParam(flag=scanBamFlag(
-                                          isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                          singleEnd=TRUE, ignore.strand=TRUE)  
-} else {
-  geneHitsPairs <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
-                                     singleEnd=FALSE, fragments=FALSE,
-                                     ignore.strand=TRUE)
-  geneHitsSingletons <- summarizeOverlaps(exonsByGene, bamlst, mode="Union", 
-                                          param=ScanBamParam(flag=scanBamFlag(
-                                          isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                          singleEnd=TRUE, fragments=FALSE,
-                                          ignore.strand=TRUE)
-}
-parathyroidGenesSE <- geneHitsPairs
-assay(parathyroidGenesSE) <- assay(geneHitsPairs) + assay(geneHitsSingletons)
+@ 
+
+We specified the files using \Rfunction{BamFileList} of the \Biocpkg{Rsamtools}
+package. The BAM files are sorted by QNAME, so there is not an index file,
+and we set \Robject{obeyQname}.
+The \Robject{yieldSize} argument allows for reads to be counted in batches.
+
+<<bamFiles>>=
+library(Rsamtools)
+bamLst <- BamFileList(fls, index=character(), 
+                      yieldSize=100000, obeyQname=TRUE)
+@ 
+
+For counting reads in genes, we used \Rfunction{summarizeOverlaps} from the 
+\Biocpkg{GenomicRanges} and \Biocpkg{Rsamtools} packages.  The following 
+code demonstrates counting reads from 3 reduced BAM files over a subset 
+of the Ensembl genes.  
+We set the counting mode to \texttt{"Union"}, which is explained in the diagram for 
+htseq-count\footnote{\url{http://www-huber.embl.de/users/anders/HTSeq/doc/count.html}}.
+The protocol is not strand specific, so we set \texttt{ignore.strand=TRUE}.  
+We specified \texttt{fragments=TRUE},
+in order to count both proper pairs and ``singletons'' (reads without a mate).
+Note that multiple BAM files can be counted at once by setting the 
+number of available cores with \texttt{options(mc.cores=4)}.
+
+<<countGenes>>=
+parathyroidGenesSE <- summarizeOverlaps(exonsByGene, bamLst, 
+                                        mode="Union", 
+                                        singleEnd=FALSE, 
+                                        ignore.strand=TRUE,
+                                        fragments=TRUE)
 @ 
 
 \section{Preparing exonic parts}
 
-For counting reads at the exon-level, we first prepared a \Rclass{GRanges} object which contains non-overlapping exonic parts. By comparing count levels across these exonic parts, we could infer cases of differential exon usage.  The resulting exonic parts are identical to those produced by the python script distributed with the \Rpackage{DEXSeq} package (though the aggregated gene names might be in a different order).  Note that some of the exonic parts have changed since the preparation of the \Rpackage{parathyroid} package due to the different Ensembl releases.  We first retrieved the exon-by-transcript information to annotate exonic parts with transcript membership.
+For counting reads at the exon-level, we first prepared a \Rclass{GRanges} 
+object which contains non-overlapping exonic parts. 
+We used the function \Rfunction{disjointExons} from the \Biocpkg{GenomicFeatures} 
+package in order to prepare the non-overlapping exonic parts.
+By comparing count levels across these exonic parts, 
+we could infer cases of differential exon usage.  
+The resulting exonic parts are identical to those produced by the python script 
+distributed with the \Biocpkg{DEXSeq} package (though the aggregated gene names 
+might be in a different order). Note that some of the exonic parts have changed 
+since the preparation of the \Biocexptpkg{parathyroid} package due to the different 
+Ensembl releases.  
 
 <<getExonsByTranscript, eval=FALSE>>=
-exonsByTranscript <- exonsBy(hse, by="tx", use.names=TRUE)
+exonicParts <- disjointExons(hse)
 @ 
 
-For the vignette, we import a subset of these transcripts:
+For the vignette, we import a subset of these exonic parts:
 
-<<loadExonsByTranscript>>=
-data(exonsByTranscript)
+<<importExonicParts>>=
+data(exonicParts)
 @ 
-
-Disjoining the exons into non-overlapping exonic parts:
-
-<<exonicParts>>=
-exonicParts <- disjoin(unlist(exonsByGene))
-@ 
-
-Assigning exonic parts to aggregate genes:
-
-<<exonsToGenes>>=
-foGG <- findOverlaps(exonsByGene, exonsByGene)
-splitByGene <- split(subjectHits(foGG), queryHits(foGG))
-aggregateGeneNames <- sapply(splitByGene, function(i) 
-                             paste(names(exonsByGene)[i],collapse="+"))
-foEG <- findOverlaps(exonicParts, exonsByGene, select="first")
-mcols(exonicParts)$aggregate_gene <- aggregateGeneNames[foEG]
-@ 
-
-Assigning exonic parts to transcripts:
-
-<<exonsToTranscripts>>=
-foET <- findOverlaps(exonicParts, exonsByTranscript)
-splitByExonicPart <- split(subjectHits(foET), queryHits(foET))
-mcols(exonicParts)$transcripts <- sapply(splitByExonicPart, function(i) 
-                                    paste(names(exonsByTranscript)[i],collapse="+"))
-@ 
-
-Sorting the exonic parts, and assigning numbers to each exonic part per aggregate gene:
-
-<<exonNumber>>=
-exonicParts <- exonicParts[order(mcols(exonicParts)$aggregate_gene)]
-mcols(exonicParts)$exonic_part_number <- do.call(c,lapply(split(mcols(exonicParts)$aggregate_gene,
-                                           mcols(exonicParts)$aggregate_gene), 
-                                           function(z) seq(along=z)))
-@
 
 The resulting exonic parts look like:
 
 <<exonicPartsResult>>=
-exonicParts[101:103]
+exonicParts[1:3]
 @ 
 
 \section{Counting reads in exonic parts}
 
-We used the \Rfunction{countOverlaps} function as a counting mode, in order to count all overlaps.  Otherwise, paired-end reads and junction-spanning reads which hit more than one exonic part would not be counted.
-
-\fixme{Note: we have two versions of the counting code, first for Bioconductor version 2.12 and then for following Bioconductor releases.}
+We used the \Rfunction{summarizeOverlaps} function again, this time 
+specifying \texttt{inter.feature=FALSE} in order to count all overlaps, 
+treating each feature independently.  Otherwise, paired-end reads and
+junction-spanning reads which hit more than one exonic part would not be 
+counted.
 
 <<exonCounts>>=
-if (BiocInstaller:::biocVersion() == "2.12") {
-  myco <- function(reads, features, ignore.strand) countOverlaps(
-                   features, reads, ignore.strand=ignore.strand)
-  exonHitsPairs <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
-                                     singleEnd=FALSE, ignore.strand=TRUE)
-  exonHitsSingletons <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
-                                          param=ScanBamParam(flag=scanBamFlag(
-                                          isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                          singleEnd=TRUE, ignore.strand=TRUE)
-} else {
-  myco <- function(features, reads, ignore.strand, inter.feature) countOverlaps(
-                   features, reads, ignore.strand=ignore.strand)
-  exonHitsPairs <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
-                                    singleEnd=FALSE, fragments=FALSE,
-                                    ignore.strand=TRUE)
-  exonHitsSingletons <- summarizeOverlaps(exonicParts, bamlst, mode=myco, 
-                                          param=ScanBamParam(flag=scanBamFlag(
-                                          isPaired=TRUE, hasUnmappedMate=TRUE)), 
-                                          singleEnd=TRUE, fragments=FALSE,
-                                          ignore.strand=TRUE)
-}
-parathyroidExonsSE <- exonHitsPairs
-assay(parathyroidExonsSE) <- assay(exonHitsPairs) + assay(exonHitsSingletons)
+parathyroidExonsSE <- summarizeOverlaps(exonicParts, bamLst,
+                                        mode="Union",
+                                        singleEnd=FALSE,
+                                        ignore.strand=TRUE,
+                                        inter.feature=FALSE,
+                                        fragments=TRUE)
 @ 
+
+Note that the metadata about the transcripts is stored in the \Robject{rowData}
+of these \Rclass{SummarizedExperiment} objects. Here, \Rfunction{str}
+is used to neatly print a list.
+
+<<metaExons>>=
+str(metadata(rowData(parathyroidGenesSE)))
+@
 
 \section{Obtaining sample annotations from GEO}
 
-In order to provide phenotypic data for the samples, we used the \Rpackage{GEOquery} package to parse the series matrix file downloaded from the NCBI Gene Expression Omnibus under accession number GSE37211.  We included this file as well in the package, and read it in locally in the code below.
+In order to provide phenotypic data for the samples, we used the 
+\Biocpkg{GEOquery} package to parse the series matrix file downloaded 
+from the NCBI Gene Expression Omnibus under accession number GSE37211.  
+We included this file as well in the package, and read it in locally 
+in the code below.
 
 <<getGEO>>=
 library("GEOquery")
@@ -215,7 +216,7 @@ samples
 
 \section{Matching GEO experiments with SRA runs}
 
-The sample information from GEO must be matched to the individual runs from the Short Read Archive (the FASTQ files), as some samples are spread over multiple sequencing runs.  The run information can be obtained from the Short Read Archive using the \Rpackage{SRAdb} package (note that the first step involves a large download of the SRA metadata database).  We included the conversion table in the package.
+The sample information from GEO must be matched to the individual runs from the Short Read Archive (the FASTQ files), as some samples are spread over multiple sequencing runs.  The run information can be obtained from the Short Read Archive using the \Biocpkg{SRAdb} package (note that the first step involves a large download of the SRA metadata database).  We included the conversion table in the package.
 
 <<getSRA, eval=FALSE>>=
 library("SRAdb")
@@ -239,16 +240,20 @@ samplesFull <- DataFrame(lapply(samplesFull, factor))
 
 \section{Adding column data and experiment data}
 
-We combined the information from GEO and SRA to the \Rclass{SummarizedExperiment} object.  First we extracted the run ID, contained in the names of the \Rclass{BamFileList} in the \Robject{fileName} column.  We then ordered the rows of \Robject{samplesFull} to match the order of the run ID in \Robject{parathyroidGenesSE}, and removed the duplicate column of run ID.
+We combined the information from GEO and SRA to the \Rclass{SummarizedExperiment} 
+object.  First we extracted the run ID, contained in the names of the 
+\Rclass{BamFileList} in the \Robject{fileName} column.  We then ordered 
+the rows of \Robject{samplesFull} to match the order of the run ID in 
+\Robject{parathyroidGenesSE}, and removed the duplicate column of run ID.
 
 <<addSampleColData, eval=FALSE>>=
 colData(parathyroidGenesSE)$run <- sub(".*(SRR.*)_tophat_out.*","\\1",
-                                       names(colData(parathyroidGenesSE)$fileName))
+                                       colnames(parathyroidGenesSE))
 matchOrder <- match(colData(parathyroidGenesSE)$run, samplesFull$run)
 colData(parathyroidGenesSE) <- cbind(colData(parathyroidGenesSE),
                                      subset(samplesFull[matchOrder,],select=-run))
 colData(parathyroidExonsSE)$run <- sub(".*(SRR.*)_tophat_out.*","\\1",
-                                       names(colData(parathyroidExonsSE)$fileName))
+                                       colnames(parathyroidExonsSE))
 matchOrder <- match(colData(parathyroidExonsSE)$run, samplesFull$run)
 colData(parathyroidExonsSE) <- cbind(colData(parathyroidExonsSE),
                                      subset(samplesFull[matchOrder,],select=-run))
@@ -282,6 +287,7 @@ save(parathyroidExonsSE,file="data/parathyroidExonsSE.RData")
 toLatex(sessionInfo())
 @ 
 
-\bibliography{library}
 \bibliographystyle{plain}
+\bibliography{library}
+
 \end{document}

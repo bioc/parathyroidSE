@@ -11,7 +11,7 @@ gene level counts for each of the samples from Haglund et al.'s RNA-seq data.
 \code{parathyroidExonsSE} is a \code{SummarizedExperiment} object with
 exonic part counts.
 
-The genes and exons are from the GRCh37 Ensembl annotations, release 69.
+The genes and exons are from the GRCh37 Ensembl annotations.
 
 For complete details on the creation of this object, please see the
 vignette. 
