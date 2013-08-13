@@ -83,7 +83,7 @@ The genes were downloaded using the \Biocpkg{GenomicFeatures} package from Ensem
 object of all exons grouped by gene.
 
 <<getExonsByGene, eval=FALSE>>=
-library(GenomicFeatures)
+library("GenomicFeatures")
 hse <- makeTranscriptDbFromBiomart(biomart="ensembl",
                                    dataset="hsapiens_gene_ensembl")
 exonsByGene <- exonsBy(hse, by="gene")
@@ -111,7 +111,7 @@ and we set \Robject{obeyQname}.
 The \Robject{yieldSize} argument allows for reads to be counted in batches.
 
 <<bamFiles>>=
-library(Rsamtools)
+library("Rsamtools")
 bamLst <- BamFileList(fls, index=character(), 
                       yieldSize=100000, obeyQname=TRUE)
 @ 
