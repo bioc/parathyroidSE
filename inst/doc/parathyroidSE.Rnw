@@ -78,8 +78,15 @@ argument of \Rfunction{BamFileList}.
 
 \section{Counting reads in genes}
 
-The genes were downloaded using the \Biocpkg{GenomicFeatures} package from Ensembl release 
-72 on July 30 2013.  The \Rfunction{exonsBy} function produces a \Rclass{GRangesList} 
+The genes were downloaded using the \Rfunction{makeTranscriptDbFromBiomart} 
+of the \Biocpkg{GenomicFeatures} package, 
+drawing from Ensembl release 72 on July 30 2013. 
+For stability and reproducibility of results, 
+one might consider to download the GTF files for the appropriate
+Ensembl release directly from the Ensembl website.
+The GTF file can be read in using the \Rfunction{makeTranscriptDbFromGFF}
+function with the argument \texttt{format} set to \texttt{"gtf"}.
+The \Rfunction{exonsBy} function produces a \Rclass{GRangesList} 
 object of all exons grouped by gene.
 
 <<getExonsByGene, eval=FALSE>>=
