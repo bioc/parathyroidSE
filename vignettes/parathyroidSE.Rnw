@@ -9,7 +9,6 @@ BiocStyle::latex()
 \usepackage{Sweave}
 \SweaveOpts{keep.source=TRUE,eps=FALSE,height=4.5,width=4} 
 
-\usepackage{cite}
 \usepackage{fancyvrb}
 \usepackage[utf8]{inputenc}
 
@@ -294,7 +293,6 @@ save(parathyroidExonsSE,file="data/parathyroidExonsSE.RData")
 toLatex(sessionInfo())
 @ 
 
-\bibliographystyle{plain}
 \bibliography{library}
 
 \end{document}
