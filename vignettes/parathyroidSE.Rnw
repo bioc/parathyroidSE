@@ -123,7 +123,7 @@ bamLst <- BamFileList(fls, index=character(),
 @ 
 
 For counting reads in genes, we used \Rfunction{summarizeOverlaps} from the 
-\Biocpkg{GenomicRanges} and \Biocpkg{Rsamtools} packages.  The following 
+\Biocpkg{GenomicAlignments} package.  The following 
 code demonstrates counting reads from 3 reduced BAM files over a subset 
 of the Ensembl genes.  
 We set the counting mode to \texttt{"Union"}, which is explained in the diagram for 
@@ -135,6 +135,7 @@ Note that multiple BAM files can be counted at once by setting the
 number of available cores with \texttt{options(mc.cores=4)}.
 
 <<countGenes>>=
+library("GenomicAlignments")
 parathyroidGenesSE <- summarizeOverlaps(exonsByGene, bamLst, 
                                         mode="Union", 
                                         singleEnd=FALSE, 
