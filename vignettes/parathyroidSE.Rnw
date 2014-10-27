@@ -114,12 +114,10 @@ fls <- list.files(bamDir, pattern="bam$",full=TRUE)
 We specified the files using \Rfunction{BamFileList} of the \Biocpkg{Rsamtools}
 package. The BAM files are sorted by QNAME, so there is not an index file,
 and we set \Robject{obeyQname}.
-The \Robject{yieldSize} argument allows for reads to be counted in batches.
 
 <<bamFiles>>=
 library("Rsamtools")
-bamLst <- BamFileList(fls, index=character(), 
-                      yieldSize=100000, obeyQname=TRUE)
+bamLst <- BamFileList(fls, index=character(), obeyQname=TRUE)
 @ 
 
 For counting reads in genes, we used \Rfunction{summarizeOverlaps} from the 
@@ -131,8 +129,6 @@ htseq-count\footnote{\url{http://www-huber.embl.de/users/anders/HTSeq/doc/count.
 The protocol is not strand specific, so we set \texttt{ignore.strand=TRUE}.  
 We specified \texttt{fragments=TRUE},
 in order to count both proper pairs and ``singletons'' (reads without a mate).
-Note that multiple BAM files can be counted at once by setting the 
-number of available cores with \texttt{options(mc.cores=4)}.
 
 <<countGenes>>=
 library("GenomicAlignments")
