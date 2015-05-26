@@ -186,12 +186,12 @@ parathyroidExonsSE <- summarizeOverlaps(exonicParts, bamLst,
                                         fragments=TRUE)
 @ 
 
-Note that the metadata about the transcripts is stored in the \Robject{rowData}
+Note that the metadata about the transcripts is stored in the \Robject{rowRanges}
 of these \Rclass{SummarizedExperiment} objects. Here, \Rfunction{str}
 is used to neatly print a list.
 
 <<metaExons>>=
-str(metadata(rowData(parathyroidGenesSE)))
+str(metadata(rowRanges(parathyroidGenesSE)))
 @
 
 \section{Obtaining sample annotations from GEO}
