@@ -265,17 +265,17 @@ colData(parathyroidExonsSE) <- cbind(colData(parathyroidExonsSE),
 
 We included experiment data and PubMed ID from the NCBI Gene Expression Omnibus.
 
-<<exptData, eval=FALSE>>=
-exptData = new("MIAME",
+<<metadata, eval=FALSE>>=
+metadata = new("MIAME",
   name="Felix Haglund",
   lab="Science for Life Laboratory Stockholm",
   contact="Mikael Huss",
   title="DPN and Tamoxifen treatments of parathyroid adenoma cells",
   url="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE37211",
   abstract="Primary hyperparathyroidism (PHPT) is most frequently present in postmenopausal women. Although the involvement of estrogen has been suggested, current literature indicates that parathyroid tumors are estrogen receptor (ER) alpha negative. Objective: The aim of the study was to evaluate the expression of ERs and their putative function in parathyroid tumors. Design: A panel of 37 parathyroid tumors was analyzed for expression and promoter methylation of the ESR1 and ESR2 genes as well as expression of the ERalpha and ERbeta1/ERbeta2 proteins. Transcriptome changes in primary cultures of parathyroid adenoma cells after treatment with the selective ERbeta1 agonist diarylpropionitrile (DPN) and 4-hydroxytamoxifen were identified using next-generation RNA sequencing. Results: Immunohistochemistry revealed very low expression of ERalpha, whereas all informative tumors expressed ERbeta1 (n = 35) and ERbeta2 (n = 34). Decreased nuclear staining intensity and mosaic pattern of positive and negative nuclei of ERbeta1 were significantly associated with larger tumor size. Tumor ESR2 levels were significantly higher in female vs. male cases. In cultured cells, significantly increased numbers of genes with modified expression were detected after 48 h, compared to 24-h treatments with DPN or 4-hydroxytamoxifen, including the parathyroid-related genes CASR, VDR, JUN, CALR, and ORAI2. Bioinformatic analysis of transcriptome changes after DPN treatment revealed significant enrichment in gene sets coupled to ER activation, and a highly significant similarity to tumor cells undergoing apoptosis. Conclusions: Parathyroid tumors express ERbeta1 and ERbeta2. Transcriptional changes after ERbeta1 activation and correlation to clinical features point to a role of estrogen signaling in parathyroid function and disease.")
-pubMedIds(exptData) <- "23024189"
-exptData(parathyroidGenesSE) <- list(MIAME=exptData)
-exptData(parathyroidExonsSE) <- list(MIAME=exptData)
+pubMedIds(metadata) <- "23024189"
+metadata(parathyroidGenesSE) <- list(MIAME=metadata)
+metadata(parathyroidExonsSE) <- list(MIAME=metadata)
 @ 
 
 Finally, we saved the object in the data directory of the package.
