@@ -5,10 +5,10 @@
 \alias{parathyroidExonsSE}
 \title{Read counts per gene/exonic part from paired-end RNA-seq samples}
 \description{
-\code{parathyroidGenesSE} is a \code{SummarizedExperiment} object with
+\code{parathyroidGenesSE} is a \link{RangedSummarizedExperiment} object with
 gene level counts for each of the samples from Haglund et al.'s RNA-seq data.
 
-\code{parathyroidExonsSE} is a \code{SummarizedExperiment} object with
+\code{parathyroidExonsSE} is a \link{RangedSummarizedExperiment} object with
 exonic part counts.
 
 The genes and exons are from the GRCh37 Ensembl annotations.
@@ -20,7 +20,7 @@ vignette.
 data("parathyroidGenesSE")
 data("parathyroidExonsSE")
 }
-\format{SummarizedExperiment}
+\format{RangedSummarizedExperiment}
 \source{Processed data from NCBI Gene Expression Omnibus under accession number GSE37211}
 \references{Haglund F, Ma R, Huss M, Sulaiman L, Lu M, Nilsson IL, Höög A, Juhlin CC, Hartman J, Larsson C., Evidence of a Functional Estrogen Receptor in Parathyroid Adenomas. The Journal of Clinical Endocrinology & Metabolism, 2012}
 \keyword{datasets}

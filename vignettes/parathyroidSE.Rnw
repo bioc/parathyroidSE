@@ -27,7 +27,7 @@ BiocStyle::latex()
 \begin{document}
 \maketitle
 \begin{abstract}
-This vignette describes the construction of the SummarizedExperiment 
+This vignette describes the construction of the RangedSummarizedExperiment 
 \Robject{parathyroidGenesSE} and \Robject{parathyroidExonsSE}
 in the \Biocexptpkg{parathyroidSE} package.
 \end{abstract}
@@ -187,7 +187,7 @@ parathyroidExonsSE <- summarizeOverlaps(exonicParts, bamLst,
 @ 
 
 Note that the metadata about the transcripts is stored in the \Robject{rowRanges}
-of these \Rclass{SummarizedExperiment} objects. Here, \Rfunction{str}
+of these \Rclass{RangedSummarizedExperiment} objects. Here, \Rfunction{str}
 is used to neatly print a list.
 
 <<metaExons>>=
@@ -243,8 +243,9 @@ samplesFull <- DataFrame(lapply(samplesFull, factor))
 
 \section{Adding column data and experiment data}
 
-We combined the information from GEO and SRA to the \Rclass{SummarizedExperiment} 
-object.  First we extracted the run ID, contained in the names of the 
+We combined the information from GEO and SRA to the
+\Rclass{RangedSummarizedExperiment} object. 
+First we extracted the run ID, contained in the names of the 
 \Rclass{BamFileList} in the \Robject{fileName} column.  We then ordered 
 the rows of \Robject{samplesFull} to match the order of the run ID in 
 \Robject{parathyroidGenesSE}, and removed the duplicate column of run ID.
