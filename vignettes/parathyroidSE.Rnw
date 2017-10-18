@@ -206,8 +206,8 @@ in the code below.
 library("GEOquery")
 gse37211 <- getGEO(filename=system.file("extdata/GSE37211_series_matrix.txt",
                                package="parathyroidSE",mustWork=TRUE))
-samples <- pData(gse37211)[,c("characteristics_ch1","characteristics_ch1.2",
-                              "characteristics_ch1.3","relation")]
+samples <- pData(gse37211)[,c("patient:ch1","agent:ch1",
+                              "time:ch1","relation")]
 colnames(samples) <- c("patient","treatment","time","experiment")
 samples$patient <- sub("patient: (.+)","\\1",samples$patient)
 samples$treatment <- sub("agent: (.+)","\\1",samples$treatment)
